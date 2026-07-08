@@ -17,6 +17,7 @@
     color: #ffffff;
     font-family: 'Inter', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     user-select: none;
+    touch-action: none;
   }
 }
 

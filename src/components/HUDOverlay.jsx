@@ -88,7 +88,7 @@ const HUDOverlay = () => {
   };
 
   return (
-    <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-between p-6 md:p-8 select-none crt-overlay">
+    <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-between p-3 md:p-8 select-none crt-overlay">
       {/* Top Bar Status / Controls */}
       <div className="w-full flex justify-between items-start pointer-events-auto">
         {/* Left: Simulation State Tag */}
@@ -272,7 +272,7 @@ const HUDOverlay = () => {
                       initial={{ opacity: 0, y: 40, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                      className="glass-panel p-5 max-w-md w-full rounded-xl pointer-events-auto border-cyber-green/30"
+                      className="glass-panel p-4 md:p-5 max-w-md w-full rounded-xl pointer-events-auto border-cyber-green/30"
                     >
                       <div className="flex justify-between items-start border-b border-cyber-green/20 pb-3 mb-3">
                         <div>
@@ -406,7 +406,7 @@ const HUDOverlay = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="glass-panel p-8 max-w-md w-full rounded-2xl border-purple-500/40 text-center font-mono pointer-events-auto flex flex-col items-center gap-6"
+              className="glass-panel p-5 md:p-8 max-w-md w-full rounded-2xl border-purple-500/40 text-center font-mono pointer-events-auto flex flex-col items-center gap-5 md:gap-6"
             >
               <div className="flex flex-col items-center gap-2">
                 <ShieldAlert size={40} className="text-purple-400 animate-pulse" />

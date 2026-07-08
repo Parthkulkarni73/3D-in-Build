@@ -58,6 +58,7 @@ const Scene = () => {
     
     const handleTouchMove = (e) => {
       if (simState !== STATES.ACTIVE) return;
+      if (e.cancelable) e.preventDefault(); // Prevent browser body scrolling and bouncing
       const deltaY = startY - e.touches[0].clientY;
       scrollVal.current += deltaY * 0.0012;
       scrollVal.current = Math.max(0.0, Math.min(1.0, scrollVal.current));
@@ -66,7 +67,7 @@ const Scene = () => {
 
     window.addEventListener('wheel', handleWheel, { passive: true });
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
 
     return () => {
       window.removeEventListener('wheel', handleWheel);

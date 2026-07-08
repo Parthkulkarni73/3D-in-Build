@@ -42,6 +42,41 @@ const ErrorOverlay = () => {
   );
 };
 
+class CanvasErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Canvas rendering crash caught:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-red-950/95 text-red-200 p-6 text-center font-mono select-text">
+          <div className="text-lg font-bold text-red-400 mb-4">⚠️ 3D CANVAS CRASHED</div>
+          <pre className="text-xs bg-black/60 p-4 rounded max-w-2xl overflow-auto text-left mb-6 whitespace-pre-wrap border border-red-900 leading-relaxed">
+            {this.state.error?.stack || this.state.error?.toString()}
+          </pre>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-red-800 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded transition-all cursor-pointer"
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   return (
     <SimulationProvider>
@@ -49,8 +84,10 @@ function App() {
         {/* Global Runtime Error Tracker */}
         <ErrorOverlay />
 
-        {/* R3F WebGL Canvas Scene */}
-        <CanvasContainer />
+        {/* R3F WebGL Canvas Scene wrapped in Error Boundary */}
+        <CanvasErrorBoundary>
+          <CanvasContainer />
+        </CanvasErrorBoundary>
 
         {/* Glassmorphic Cyber HUD Overlay */}
         <HUDOverlay />

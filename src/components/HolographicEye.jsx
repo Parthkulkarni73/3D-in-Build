@@ -13,6 +13,8 @@ const HolographicEye = () => {
   const ring3 = useRef();
   const stormRef = useRef();
 
+  const endingFade = useRef(1.0);
+
   // Generate coordinate vertices for the cognitive storm
   const particleCount = 280;
   const stormPositions = useMemo(() => {
@@ -32,36 +34,63 @@ const HolographicEye = () => {
   }, []);
 
   useFrame((state, delta) => {
-    // Only animate if in FREEZE or ACTIVE (near the end)
-    if (simState !== STATES.FREEZE && simState !== STATES.ACTIVE) return;
+    // Animate in ACTIVE, FREEZE, and ENDING states
+    if (simState !== STATES.FREEZE && simState !== STATES.ACTIVE && simState !== STATES.ENDING) return;
 
     const t = state.clock.getElapsedTime();
 
-    // 1. Slow hover floating
+    // 1. Manage ending fade out smoothly
+    if (simState === STATES.ENDING) {
+      endingFade.current = THREE.MathUtils.lerp(endingFade.current, 0.0, delta * 1.6);
+    } else {
+      endingFade.current = 1.0;
+    }
+
+    // 2. Slow hover floating
     if (coreGroup.current) {
       coreGroup.current.position.y = 3.2 + Math.sin(t * 1.6) * 0.12;
       coreGroup.current.rotation.y += delta * 0.05;
     }
 
-    // 2. Pulsating energy core
+    // 3. Pulsating energy core
     if (energySphere.current) {
       const scale = 1.0 + Math.sin(t * 4.5) * 0.08;
       energySphere.current.scale.set(scale, scale, scale);
     }
 
-    // 3. Ring orbits
+    // 4. Ring orbits
     if (ring1.current) ring1.current.rotation.y += delta * 0.8;
     if (ring2.current) ring2.current.rotation.x -= delta * 1.0;
     if (ring3.current) ring3.current.rotation.z += delta * 0.6;
 
-    // 4. Spin particle storm
+    // 5. Spin particle storm
     if (stormRef.current) {
       stormRef.current.rotation.y -= delta * 0.4;
       stormRef.current.rotation.z += delta * 0.2;
     }
+
+    // Update opacities dynamically for fade out
+    if (coreGroup.current) {
+      coreGroup.current.traverse((child) => {
+        if (child.isMesh && child.material) {
+          // Store original opacity once
+          if (child.material.userData.originalOpacity === undefined) {
+            child.material.userData.originalOpacity = child.material.opacity;
+          }
+          child.material.opacity = child.material.userData.originalOpacity * endingFade.current;
+        }
+        if (child.isPoints && child.material) {
+          if (child.material.userData.originalOpacity === undefined) {
+            child.material.userData.originalOpacity = child.material.opacity;
+          }
+          child.material.opacity = child.material.userData.originalOpacity * endingFade.current;
+        }
+      });
+    }
   });
 
-  if (simState !== STATES.FREEZE) return null;
+  // Render in FREEZE and ENDING states so the transition is perfectly seamless
+  if (simState !== STATES.FREEZE && simState !== STATES.ENDING) return null;
 
   return (
     <group ref={coreGroup} position={[0, 3.2, -92]}>
@@ -109,7 +138,7 @@ const HolographicEye = () => {
       {/* 3. Cognitive Glyphs / Symbolic Wireframe Objects */}
       {[-1, 1].map((dir, i) => (
         <group key={i} rotation={[0, (i * Math.PI) / 2, 0]}>
-          <mesh position={[2.8 * dir, 0, 0]} rotation={[t => t, t => t, 0]}>
+          <mesh position={[2.8 * dir, 0, 0]}>
             <octahedronGeometry args={[0.22, 0]} />
             <meshBasicMaterial color="#00ffc8" wireframe transparent opacity={0.7} />
           </mesh>
